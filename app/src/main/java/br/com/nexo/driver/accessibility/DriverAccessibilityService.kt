@@ -54,6 +54,7 @@ class DriverAccessibilityService : AccessibilityService() {
         if (!::processor.isInitialized) return
         val packageName = event?.packageName?.toString()
         if (packageName == this.packageName || packageName?.startsWith("${this.packageName}.") == true) return
+        clickPerKm.considerVisibleScreen()
         val eventHint = accessibilityLayoutHint(packageName)
         val extraText = if (eventHint != null) {
             buildList {
@@ -234,7 +235,6 @@ class DriverAccessibilityService : AccessibilityService() {
     ) {
         val generation = activeOfferUpdateGate.open(SystemClock.elapsedRealtime())
         showOverlay(result)
-        if (source == AnalysisSource.ACCESSIBILITY) clickPerKm.consider(result.offer)
         processor.analyzeDestinationUpdateAsync(offer, source) { update ->
             eventHandler.post {
                 if (
