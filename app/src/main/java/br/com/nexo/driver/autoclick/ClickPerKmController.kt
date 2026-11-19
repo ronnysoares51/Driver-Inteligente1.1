@@ -35,7 +35,7 @@ class ClickPerKmController(private val service: AccessibilityService) {
         try {
             // Only interact with an exact, visible button belonging to the 99 Driver app.
             val owner = root.packageName?.toString().orEmpty()
-            if (owner != "com.noventa.driver" && owner != "com.noventa.driver.app") return
+            if (owner != "com.app99.driver") return
             val candidates = root.findAccessibilityNodeInfosByText("Escolher")
             try {
                 val exact = candidates.filter {
