@@ -227,8 +227,7 @@ fun accessibilityLayoutHint(packageName: CharSequence?): String? {
     val normalized = packageName?.toString()?.lowercase().orEmpty()
     return when {
         normalized == "com.ubercab.driver" || normalized.startsWith("com.ubercab.driver.") -> "uber"
-        normalized == "com.app99.driver" ||
-            normalized.contains("taxis99") ||
+        normalized.contains("taxis99") ||
             normalized.contains("99driver") ||
             normalized.contains("didiglobal.driver") -> "99"
         else -> null
