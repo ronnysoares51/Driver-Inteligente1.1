@@ -1,5 +1,15 @@
 package br.com.nexo.driver.ui.settings
 
+import android.content.Context
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import br.com.nexo.driver.autoclick.ClickPerKmController
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -153,6 +163,8 @@ fun SettingsScreen(
                     onCheckedChange = onSpeakDecisionChanged,
                 )
             }
+
+            ClickPerKmSettings()
 
             Text(
                 text = "Campos do overlay",
@@ -317,6 +329,52 @@ private fun SettingsScreenDarkPreview() {
             ),
             onThemeModeChanged = {},
             onFontScaleChanged = {},
+        )
+    }
+}
+
+/** Explicit opt-in; both preference changes take effect on the next offer. */
+@Composable
+private fun ClickPerKmSettings() {
+    val context = LocalContext.current
+    val prefs = remember(context) {
+        context.getSharedPreferences(ClickPerKmController.PREFS, Context.MODE_PRIVATE)
+    }
+    var enabled by remember(prefs) { mutableStateOf(prefs.getBoolean(ClickPerKmController.KEY_ENABLED, false)) }
+    var minimumText by remember(prefs) {
+        mutableStateOf("%.2f".format(java.util.Locale.US, prefs.getLong(ClickPerKmController.KEY_MIN_CENTS, 200L) / 100.0))
+    }
+    PreferenceCard(
+        title = "Clique por KM (99)",
+        description = "Quando ativado, toca somente no botão Escolher se a oferta tiver valor e distâncias confiáveis e o ganho total for igual ou superior ao mínimo configurado. Não toca em Mapa de Chamadas.",
+    ) {
+        ToggleRow(
+            label = if (enabled) "Clique por KM ligado" else "Clique por KM desligado",
+            checked = enabled,
+            onCheckedChange = { checked ->
+                enabled = checked
+                prefs.edit().putBoolean(ClickPerKmController.KEY_ENABLED, checked).apply()
+            },
+        )
+        OutlinedTextField(
+            value = minimumText,
+            onValueChange = { raw ->
+                if (raw.length <= 8 && raw.all { it.isDigit() || it == ',' || it == '.' }) {
+                    minimumText = raw
+                    val cents = ((raw.replace(',', '.').toDoubleOrNull() ?: 0.0) * 100).toLong()
+                    if (cents > 0L && cents <= 100_000L) {
+                        prefs.edit().putLong(ClickPerKmController.KEY_MIN_CENTS, cents).apply()
+                    }
+                }
+            },
+            label = { Text("Mínimo R$/km (inclui busca + viagem)") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+            "O serviço de acessibilidade precisa estar ativado. Se não conseguir ler o botão ou calcular a distância, o app não clica.",
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }
