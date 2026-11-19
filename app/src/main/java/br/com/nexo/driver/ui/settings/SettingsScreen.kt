@@ -345,8 +345,8 @@ private fun ClickPerKmSettings() {
         mutableStateOf("%.2f".format(java.util.Locale.US, prefs.getLong(ClickPerKmController.KEY_MIN_CENTS, 200L) / 100.0))
     }
     PreferenceCard(
-        title = "Clique por KM (99)",
-        description = "Quando ativado, toca somente no botão Escolher se a oferta tiver valor e distâncias confiáveis e o ganho total for igual ou superior ao mínimo configurado. Não toca em Mapa de Chamadas.",
+        title = "Clique por KM (Solicitações)",
+        description = "Quando ativado, lê o valor R$/km da tela Solicitações e toca somente em Escolher se alcançar o mínimo configurado. Não toca em Mapa de Chamadas.",
     ) {
         ToggleRow(
             label = if (enabled) "Clique por KM ligado" else "Clique por KM desligado",
@@ -367,13 +367,13 @@ private fun ClickPerKmSettings() {
                     }
                 }
             },
-            label = { Text("Mínimo R$/km (inclui busca + viagem)") },
+            label = { Text("Mínimo R$/km mostrado na oferta") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         Text(
-            "O serviço de acessibilidade precisa estar ativado. Se não conseguir ler o botão ou calcular a distância, o app não clica.",
+            "O serviço de acessibilidade precisa estar ativado. Se não conseguir ler o botão ou o valor R$/km, o app não clica.",
             style = MaterialTheme.typography.bodySmall,
         )
     }
