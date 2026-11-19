@@ -9,6 +9,7 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import br.com.nexo.driver.BuildConfig
+import br.com.nexo.driver.autoclick.ClickPerKmController
 import br.com.nexo.driver.analysis.OfferAnalysisProcessor
 import br.com.nexo.driver.analysis.ActiveOfferUpdateGate
 import br.com.nexo.driver.ocr.OfferOcrPipeline
@@ -21,6 +22,7 @@ import br.com.nexo.driver.speech.OfferDecisionSpeaker
  */
 class DriverAccessibilityService : AccessibilityService() {
     private val reader = AccessibilityOfferReader()
+    private val clickPerKm = ClickPerKmController(this)
     private val pipeline = OfferOcrPipeline()
     private lateinit var processor: OfferAnalysisProcessor
     private var overlayWindow: WindowManagerOfferOverlay? = null
@@ -232,6 +234,7 @@ class DriverAccessibilityService : AccessibilityService() {
     ) {
         val generation = activeOfferUpdateGate.open(SystemClock.elapsedRealtime())
         showOverlay(result)
+        if (source == AnalysisSource.ACCESSIBILITY) clickPerKm.consider(result.offer)
         processor.analyzeDestinationUpdateAsync(offer, source) { update ->
             eventHandler.post {
                 if (
